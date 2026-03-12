@@ -1,0 +1,62 @@
+{
+  "name": "typescript-base",
+  "version": "1.0.0-beta",
+  "main": "src/main.ts",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "depcheck": "depcheck --ignores=@types/*,@typescript-eslint/*,globals,node:test,ts-node,tsconfig-paths",
+    "format": "prettier --write src tests",
+    "typecheck": "tsc ; eslint -c eslint-typecheck.config.mjs",
+    "audit-src": "eslint -c eslint-security.config.mjs",
+    "audit-packages": "npm audit --audit-level=moderate --format=json | grep -qE '\"severity\":\\s*\"(moderate|high|critical)\"' && exit 1 || exit 0",
+    "lint": "eslint src tests --fix",
+    "security": "npm run audit-src && npm run audit-packages",
+    "checks": "npm run depcheck && npm run format && npm run typecheck && npm run security && npm run lint",
+    "unit": "node --require ts-node/register --require tsconfig-paths/register --test src/app.test.ts",
+    "integration": "node --require ts-node/register --require tsconfig-paths/register --test tests/integration.test.ts",
+    "cover": "c8 npm run unit && c8 npm run integration",
+    "review": "claude 'run code-reviewer agent against diff for quality and elegance'",
+    "commit": "npm run checks && npm run cover && npm run review && git add -A && git cz && git push"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.31.0",
+    "@types/node": "^24.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "c8": "^10.1.2",
+    "depcheck": "^1.4.7",
+    "eslint": "^9.31.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsdoc": "48.11.0",
+    "eslint-plugin-no-secrets": "^2.2.1",
+    "eslint-plugin-security": "^3.0.1",
+    "globals": "^15.0.0",
+    "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "5.8.3",
+    "typescript-eslint": "^8.38.0"
+  },
+  "dependencies": {
+    "ts-pattern": "^5.0.0",
+    "winston": "^3.17.0",
+    "yaml": "^2.4.0",
+    "zod": "^4.0.0"
+  },
+  "c8": {
+    "include": [
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "**/*.test.ts"
+    ],
+    "reporter": [
+      "text",
+      "cobertura"
+    ],
+    "reports-dir": "coverage",
+    "clean": true
+  }
+}
